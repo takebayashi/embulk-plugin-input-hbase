@@ -30,7 +30,11 @@ module Embulk
           value = row[column.name]
           case column.type
           when :long
-            HBase::Util::from_bytes(:long, value)
+            if value
+              HBase::Util::from_bytes(:long, value)
+            else
+              0
+            end
           else
             value
           end
