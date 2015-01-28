@@ -11,4 +11,6 @@ Gem::Specification.new { |gem|
   gem.require_paths = ['lib']
 
   gem.add_dependency 'hbase-jruby'
+  gem.add_development_dependency 'bundler', ['~> 1.0']
+  gem.add_development_dependency 'rake', ['>= 0.9.2']
 }
