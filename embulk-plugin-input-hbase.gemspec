@@ -10,5 +10,5 @@ Gem::Specification.new { |gem|
   gem.test_files = gem.files.grep(/test/)
   gem.require_paths = ['lib']
 
-  gem.add_dependency 'hbaserb'
+  gem.add_dependency 'hbase-jruby'
 }

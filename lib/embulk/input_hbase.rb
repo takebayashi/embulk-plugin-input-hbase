@@ -1,4 +1,4 @@
-require 'hbaserb'
+require 'hbase-jruby'
 
 module Embulk
   class InputHBase < InputPlugin
@@ -22,11 +22,11 @@ module Embulk
     end
 
     def run
-      client = HBaseRb::Client.new task['host']
-      table = client.get_table task['table']
-      table.create_scanner() { |row|
+      hbase = HBase.new('hbase.zookeeper.quorum' => task['host'])
+      table = hbase.table(task['table'])
+      table.each { |row|
         @page_builder.add(schema.map { |column|
-          row.columns[column.name]
+          row[column.name]
         })
       }
       @page_builder.finish
