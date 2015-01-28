@@ -10,11 +10,9 @@ module Embulk
         'table' => config.param('table', :string)
       }
       threads = 1
-      columns = [
-        # Column.new(0, 'col0', :long),
-        # Column.new(1, 'col1', :double),
-        # Column.new(2, 'col2', :string),
-      ]
+      columns = config.param('columns', :array).map.with_index { |column, i|
+        Columns.new(i, column['name'], column['type'].to_sym)
+      }
       commit_reports = yield(task, columns, threads)
       return {}
     end
@@ -27,7 +25,9 @@ module Embulk
       client = HBaseRb::Client.new task['host']
       table = client.get_table task['table']
       table.create_scanner() { |row|
-        # @page_builder.add([i, 10.0, "example"])
+        @page_builder.add(schema.map { |column|
+          row.columns[column.name]
+        })
       }
       @page_builder.finish
       commit_report = {
