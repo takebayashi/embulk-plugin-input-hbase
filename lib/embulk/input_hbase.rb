@@ -35,6 +35,12 @@ module Embulk
             else
               0
             end
+          when :string
+            if value
+              HBase::Util::from_bytes(:string, value)
+            else
+              ''
+            end
           else
             value
           end
