@@ -11,7 +11,7 @@ module Embulk
       }
       threads = 1
       columns = config.param('columns', :array).map.with_index { |column, i|
-        Columns.new(i, column['name'], column['type'].to_sym)
+        Column.new(i, column['name'], column['type'].to_sym)
       }
       commit_reports = yield(task, columns, threads)
       return {}
@@ -22,11 +22,18 @@ module Embulk
     end
 
     def run
-      hbase = HBase.new('hbase.zookeeper.quorum' => task['host'])
-      table = hbase.table(task['table'])
+      HBase.resolve_dependency! '0.98'
+      hbase = HBase.new('hbase.zookeeper.quorum' => @task['host'])
+      table = hbase.table(@task['table'])
       table.each { |row|
-        @page_builder.add(schema.map { |column|
-          row[column.name]
+        @page_builder.add(@schema.map { |column|
+          value = row[column.name]
+          case column.type
+          when :long
+            HBase::Util::from_bytes(:long, value)
+          else
+            value
+          end
         })
       }
       @page_builder.finish
