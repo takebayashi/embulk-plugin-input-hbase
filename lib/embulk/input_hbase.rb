@@ -1,4 +1,10 @@
-require 'hbase-jruby'
+require 'java'
+
+java_import org.apache.hadoop.hbase.HBaseConfiguration
+java_import org.apache.hadoop.hbase.client.HConnectionManager
+java_import org.apache.hadoop.hbase.client.Scan
+java_import org.apache.hadoop.hbase.util.Bytes
+java_import org.apache.hadoop.hbase.CellUtil
 
 module Embulk
   class InputHBase < InputPlugin
@@ -22,27 +28,33 @@ module Embulk
     end
 
     def run
-      HBase.resolve_dependency! '0.98'
-      hbase = HBase.new('hbase.zookeeper.quorum' => @task['host'])
-      table = hbase.table(@task['table'])
-      table.each { |row|
+      conf = HBaseConfiguration.create
+      conf.set('hbase.zookeeper.quorum', @task['host'])
+      connection = HConnectionManager.createConnection(conf)
+      table = connection.getTable(@task['table'])
+      scan = Scan.new
+      scanner = table.getScanner(scan)
+      scanner.each { |result|
         @page_builder.add(@schema.map { |column|
-          value = row[column.name]
-          case column.type
-          when :long
-            if value
-              HBase::Util::from_bytes(:long, value)
+          family, qualifier = column.name.split(':').map {|e|
+            Bytes.toBytes(e)
+          }
+          raw = nil
+          if table.containsColumn(family, qualifier) then
+            cell = result.getColumnLatestCell(family, qualifier)
+            raw = CellUtil.cloneValue(cell)
+          end
+          if raw then
+            case column.type
+            when :long
+              Bytes.toLong(raw)
+            when :string
+              Bytes.toString(raw)
             else
-              0
-            end
-          when :string
-            if value
-              HBase::Util::from_bytes(:string, value)
-            else
-              ''
+              raw
             end
           else
-            value
+            nil
           end
         })
       }
