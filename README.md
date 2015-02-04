@@ -31,12 +31,12 @@ out:
 Embulk preview:
 
 ```bash
-$ java -jar embulk.jar preview example.yml
+$ java -jar embulk.jar preview -C $(hbase classpath) example.yml
 +--------------+----------------+
 | foo:dig:long | foo:str:string |
 +--------------+----------------+
 |            1 |                |
 |            2 |          hello |
-|            0 |            hey |
+|              |            hey |
 +--------------+----------------+
 ```
