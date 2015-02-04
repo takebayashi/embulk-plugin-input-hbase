@@ -40,7 +40,7 @@ module Embulk
             Bytes.toBytes(e)
           }
           raw = nil
-          if table.containsColumn(family, qualifier) then
+          if result.containsColumn(family, qualifier) then
             cell = result.getColumnLatestCell(family, qualifier)
             raw = CellUtil.cloneValue(cell)
           end
