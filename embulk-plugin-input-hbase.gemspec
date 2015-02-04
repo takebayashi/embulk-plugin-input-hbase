@@ -1,6 +1,7 @@
 Gem::Specification.new { |gem|
   gem.name = 'embulk-plugin-input-hbase'
-  gem.version = '0.0.1'
+  gem.version = '0.0.2'
+  gem.platform = 'java'
   gem.summary = gem.description = %q{Embulk plugin for HBase input}
   gem.authors = 'Shun Takebayashi'
   gem.email = 'shun@takebayashi.asia'
@@ -10,7 +11,6 @@ Gem::Specification.new { |gem|
   gem.test_files = gem.files.grep(/test/)
   gem.require_paths = ['lib']
 
-  gem.add_dependency 'hbase-jruby'
   gem.add_development_dependency 'bundler', ['~> 1.0']
   gem.add_development_dependency 'rake', ['>= 0.9.2']
 }
